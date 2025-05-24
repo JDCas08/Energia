@@ -30,6 +30,7 @@ public class Controlador {
                 case 5 -> cargarConsumosTodos();
                 case 6 -> cargarConsumoCliente();
                 case 7 -> mostrarConsumosCliente();
+                case 8 -> cambiarConsumoHora();
                 case 0 -> System.out.println("Saliendo...");
                 default -> System.out.println("Opción inválida");
             }
@@ -45,6 +46,7 @@ public class Controlador {
         System.out.println("5. Cargar consumos de todos los clientes");
         System.out.println("6. Cargar consumos de un cliente");
         System.out.println("7. Mostrar consumos de un cliente");
+        System.out.println("8. Cambiar consumo de una hora específica");
         System.out.println("0. Salir");
         System.out.print("Seleccione una opción: ");
     }
@@ -119,6 +121,7 @@ public class Controlador {
         int anio = scanner.nextInt();
         System.out.print("Mes (1-12): ");
         int mes = scanner.nextInt();
+        scanner.nextLine();
         int dias = obtenerDiasDelMes(mes, anio);
         for (Cliente c : clientes) {
             c.generarConsumosAutomaticos(dias);
@@ -133,6 +136,7 @@ public class Controlador {
             int anio = scanner.nextInt();
             System.out.print("Mes (1-12): ");
             int mes = scanner.nextInt();
+            scanner.nextLine();
             int dias = obtenerDiasDelMes(mes, anio);
             c.generarConsumosAutomaticos(dias);
             System.out.println("Consumos generados para el cliente.");
@@ -150,6 +154,37 @@ public class Controlador {
         }
     }
 
+    private void cambiarConsumoHora() {
+        Cliente c = buscarClientePorId();
+        if (c != null && !c.getRegistradores().isEmpty()) {
+            System.out.print("ID del registrador: ");
+            String id = scanner.nextLine();
+            Registrador registrador = null;
+            for (Registrador r : c.getRegistradores()) {
+                if (r.getId().equals(id)) {
+                    registrador = r;
+                    break;
+                }
+            }
+            if (registrador != null && registrador.getConsumo() != null) {
+                System.out.print("Día (1-" + registrador.getConsumo().getDias() + "): ");
+                int dia = scanner.nextInt() - 1;
+                System.out.print("Hora (0-23): ");
+                int hora = scanner.nextInt();
+                System.out.print("Nuevo consumo (kW/h): ");
+                int nuevoConsumo = scanner.nextInt();
+                scanner.nextLine();
+
+                registrador.getConsumo().setConsumo(dia, hora, nuevoConsumo);
+                System.out.println("Consumo actualizado.");
+            } else {
+                System.out.println("Registrador no encontrado o sin consumos generados.");
+            }
+        } else {
+            System.out.println("Cliente no encontrado o sin registradores.");
+        }
+    }
+
     private Cliente buscarClientePorId() {
         System.out.print("Número de identificación del cliente: ");
         String id = scanner.nextLine();
@@ -162,12 +197,22 @@ public class Controlador {
     }
 
     private int obtenerDiasDelMes(int mes, int anio) {
-        return switch (mes) {
-            case 1, 3, 5, 7, 8, 10, 12 -> 31;
-            case 4, 6, 9, 11 -> 30;
-            case 2 -> (esBisiesto(anio) ? 29 : 28);
-            default -> 30;
-        };
+        switch (mes) {
+            case 1, 3, 5, 7, 8, 10, 12 -> {
+                return 31;
+            }
+            case 4, 6, 9, 11 -> {
+                return 30;
+            }
+            case 2 -> {
+                if (esBisiesto(anio)) return 29;
+                else return 28;
+            }
+            default -> {
+                System.out.println("Mes inválido, se asigna 30 días por defecto");
+                return 30;
+            }
+        }
     }
 
     private boolean esBisiesto(int anio) {

@@ -9,7 +9,6 @@ public class Cliente {
     private String correo;
     private String direccion;
     private List<Registrador> registradores;
-    private Consumo consumo = new Consumo();
 
     public Cliente(String numeroIdentificacion, String tipoIdentificacion, String correo, String direccion) {
         this.numeroIdentificacion = numeroIdentificacion;
@@ -51,20 +50,24 @@ public class Cliente {
         return registradores;
     }
 
-    public Consumo getConsumo() {
-        return consumo;
+    public void agregarRegistrador(Registrador registrador) {
+        registradores.add(registrador);
     }
 
-    public void agregarRegistrador(Registrador r) {
-        registradores.add(r);
+    // Método para generar consumos automáticos en todos los registradores del cliente
+    public void generarConsumosAutomaticos(int dias) {
+        for (Registrador r : registradores) {
+            r.generarConsumos(dias);
+        }
     }
 
-    public void generarConsumosAutomaticos(int diasDelMes) {
-        consumo.generarConsumos(diasDelMes);
-    }
-
+    // Mostrar consumos para todos los registradores
     public void mostrarConsumos() {
-        consumo.mostrarConsumos();
+        for (Registrador r : registradores) {
+            System.out.println("Registrador ID: " + r.getId());
+            r.mostrarConsumos();
+            System.out.println();
+        }
     }
 }
 

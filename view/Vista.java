@@ -19,7 +19,8 @@ public class Vista {
         System.out.println("4. Editar registrador");
         System.out.println("5. Cargar consumos para todos los clientes");
         System.out.println("6. Cargar consumos para un cliente");
-        System.out.println("7. Salir");
+        System.out.println("7. Cambiar consumo de una hora específica");
+        System.out.println("8. Salir");
     }
 
     public int pedirOpcion() {
