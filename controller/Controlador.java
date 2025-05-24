@@ -2,133 +2,176 @@ package controller;
 
 import java.util.ArrayList;
 import model.Cliente;
-import view.Vista;
 import model.Registrador;   
+import java.util.List;
+import java.util.Scanner;
 
 public class Controlador {
-    private Vista vista;
-    private ArrayList<Cliente> clientes;
+    private List<Cliente> clientes;
+    private Scanner scanner;
 
-    public Controlador(Vista vista) {
-        this.vista = vista;
-        this.clientes = new ArrayList<>();
+    public Controlador() {
+        clientes = new ArrayList<>();
+        scanner = new Scanner(System.in);
     }
 
-    // 1. Crear cliente
-    public void crearCliente() {
-        vista.mostrarMensaje("Creando cliente nuevo:");
-        String id = vista.leerCadena("Número único de identificación:");
-        
-        if (buscarClientePorId(id) != null) {
-            vista.mostrarMensaje("Error: Ya existe un cliente con ese número de identificación.");
-            return;
-        }
+    public void iniciar() {
+        int opcion;
+        do {
+            mostrarMenu();
+            opcion = scanner.nextInt();
+            scanner.nextLine();
 
-        String tipoId = vista.leerCadena("Tipo de identificación:");
-        String correo = vista.leerCadena("Correo electrónico:");
-        String direccion = vista.leerCadena("Dirección física:");
-        
-        vista.mostrarMensaje("Datos del registrador inicial:");
-        Registrador registradorInicial = crearRegistradorDesdeVista();
-
-        Cliente cliente = new Cliente(id, tipoId, correo, direccion, registradorInicial);
-        clientes.add(cliente);
-        vista.mostrarMensaje("Cliente creado con éxito.");
+            switch (opcion) {
+                case 1 -> crearCliente();
+                case 2 -> editarCliente();
+                case 3 -> crearRegistrador();
+                case 4 -> editarRegistrador();
+                case 5 -> cargarConsumosTodos();
+                case 6 -> cargarConsumoCliente();
+                case 7 -> mostrarConsumosCliente();
+                case 0 -> System.out.println("Saliendo...");
+                default -> System.out.println("Opción inválida");
+            }
+        } while (opcion != 0);
     }
 
-    // 2. Editar cliente (excepto id)
-    public void editarCliente() {
-        String id = vista.leerCadena("Número único de identificación del cliente a editar:");
-        Cliente cliente = buscarClientePorId(id);
-        if (cliente == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
-        }
-        String tipoId = vista.leerCadena("Nuevo tipo de identificación:");
-        String correo = vista.leerCadena("Nuevo correo electrónico:");
-        String direccion = vista.leerCadena("Nueva dirección física:");
-
-        cliente.setTipoId(tipoId);
-        cliente.setCorreo(correo);
-        cliente.setDireccion(direccion);
-        vista.mostrarMensaje("Cliente editado con éxito.");
+    private void mostrarMenu() {
+        System.out.println("\n--- MENÚ ---");
+        System.out.println("1. Crear cliente");
+        System.out.println("2. Editar cliente");
+        System.out.println("3. Crear registrador");
+        System.out.println("4. Editar registrador");
+        System.out.println("5. Cargar consumos de todos los clientes");
+        System.out.println("6. Cargar consumos de un cliente");
+        System.out.println("7. Mostrar consumos de un cliente");
+        System.out.println("0. Salir");
+        System.out.print("Seleccione una opción: ");
     }
 
-    // 3. Crear registrador y agregar a cliente
-    public void crearRegistrador() {
-        String idCliente = vista.leerCadena("Número de identificación del cliente para agregar registrador:");
-        Cliente cliente = buscarClientePorId(idCliente);
-        if (cliente == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
-        }
-        Registrador nuevoRegistrador = crearRegistradorDesdeVista();
-        cliente.agregarRegistrador(nuevoRegistrador);
-        vista.mostrarMensaje("Registrador agregado con éxito.");
+    private void crearCliente() {
+        System.out.print("Número de identificación: ");
+        String id = scanner.nextLine();
+        System.out.print("Tipo de identificación: ");
+        String tipoId = scanner.nextLine();
+        System.out.print("Correo: ");
+        String correo = scanner.nextLine();
+        System.out.print("Dirección: ");
+        String direccion = scanner.nextLine();
+        clientes.add(new Cliente(id, tipoId, correo, direccion));
+        System.out.println("Cliente creado.");
     }
 
-    // 4. Editar registrador (excepto id)
-    public void editarRegistrador() {
-        String idCliente = vista.leerCadena("Número de identificación del cliente:");
-        Cliente cliente = buscarClientePorId(idCliente);
-        if (cliente == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
+    private void editarCliente() {
+        Cliente c = buscarClientePorId();
+        if (c != null) {
+            System.out.print("Nuevo tipo de identificación: ");
+            c.setTipoIdentificacion(scanner.nextLine());
+            System.out.print("Nuevo correo: ");
+            c.setCorreo(scanner.nextLine());
+            System.out.print("Nueva dirección: ");
+            c.setDireccion(scanner.nextLine());
+            System.out.println("Cliente actualizado.");
+        } else {
+            System.out.println("Cliente no encontrado.");
         }
-        String idRegistrador = vista.leerCadena("Número de identificación del registrador a editar:");
-        Registrador registrador = buscarRegistradorPorId(cliente, idRegistrador);
-        if (registrador == null) {
-            vista.mostrarMensaje("Registrador no encontrado.");
-            return;
-        }
-        String direccion = vista.leerCadena("Nueva dirección del registrador:");
-        String ciudad = vista.leerCadena("Nueva ciudad del registrador:");
-        registrador.setDireccion(direccion);
-        registrador.setCiudad(ciudad);
-        vista.mostrarMensaje("Registrador editado con éxito.");
     }
 
-    // Métodos auxiliares para búsqueda
-    private Cliente buscarClientePorId(String id) {
+    private void crearRegistrador() {
+        Cliente c = buscarClientePorId();
+        if (c != null) {
+            System.out.print("ID del registrador: ");
+            String id = scanner.nextLine();
+            System.out.print("Dirección del registrador: ");
+            String direccion = scanner.nextLine();
+            System.out.print("Ciudad: ");
+            String ciudad = scanner.nextLine();
+            c.agregarRegistrador(new Registrador(id, direccion, ciudad));
+            System.out.println("Registrador agregado.");
+        } else {
+            System.out.println("Cliente no encontrado.");
+        }
+    }
+
+    private void editarRegistrador() {
+        Cliente c = buscarClientePorId();
+        if (c != null && !c.getRegistradores().isEmpty()) {
+            System.out.print("ID del registrador a editar: ");
+            String id = scanner.nextLine();
+            for (Registrador r : c.getRegistradores()) {
+                if (r.getId().equals(id)) {
+                    System.out.print("Nueva dirección: ");
+                    r.setDireccion(scanner.nextLine());
+                    System.out.print("Nueva ciudad: ");
+                    r.setCiudad(scanner.nextLine());
+                    System.out.println("Registrador actualizado.");
+                    return;
+                }
+            }
+            System.out.println("Registrador no encontrado.");
+        } else {
+            System.out.println("Cliente no encontrado o sin registradores.");
+        }
+    }
+
+    private void cargarConsumosTodos() {
+        System.out.print("Año: ");
+        int anio = scanner.nextInt();
+        System.out.print("Mes (1-12): ");
+        int mes = scanner.nextInt();
+        int dias = obtenerDiasDelMes(mes, anio);
         for (Cliente c : clientes) {
-            if (c.getId().equals(id)) {
+            c.generarConsumosAutomaticos(dias);
+        }
+        System.out.println("Consumos generados para todos los clientes.");
+    }
+
+    private void cargarConsumoCliente() {
+        Cliente c = buscarClientePorId();
+        if (c != null) {
+            System.out.print("Año: ");
+            int anio = scanner.nextInt();
+            System.out.print("Mes (1-12): ");
+            int mes = scanner.nextInt();
+            int dias = obtenerDiasDelMes(mes, anio);
+            c.generarConsumosAutomaticos(dias);
+            System.out.println("Consumos generados para el cliente.");
+        } else {
+            System.out.println("Cliente no encontrado.");
+        }
+    }
+
+    private void mostrarConsumosCliente() {
+        Cliente c = buscarClientePorId();
+        if (c != null) {
+            c.mostrarConsumos();
+        } else {
+            System.out.println("Cliente no encontrado.");
+        }
+    }
+
+    private Cliente buscarClientePorId() {
+        System.out.print("Número de identificación del cliente: ");
+        String id = scanner.nextLine();
+        for (Cliente c : clientes) {
+            if (c.getNumeroIdentificacion().equals(id)) {
                 return c;
             }
         }
         return null;
     }
 
-    private Registrador buscarRegistradorPorId(Cliente cliente, String idReg) {
-        for (Registrador r : cliente.getRegistradores()) {
-            if (r.getId().equals(idReg)) {
-                return r;
-            }
-        }
-        return null;
+    private int obtenerDiasDelMes(int mes, int anio) {
+        return switch (mes) {
+            case 1, 3, 5, 7, 8, 10, 12 -> 31;
+            case 4, 6, 9, 11 -> 30;
+            case 2 -> (esBisiesto(anio) ? 29 : 28);
+            default -> 30;
+        };
     }
 
-    // Método para crear registrador desde la vista
-    private Registrador crearRegistradorDesdeVista() {
-        String idReg = vista.leerCadena("Número de identificación del registrador:");
-        String direccion = vista.leerCadena("Dirección del registrador:");
-        String ciudad = vista.leerCadena("Ciudad del registrador:");
-        return new Registrador(idReg, direccion, ciudad);
-    }
-
-    // Método para iniciar menú básico
-    public void iniciar() {
-        boolean continuar = true;
-        while (continuar) {
-            int opcion = vista.menuOpciones();
-            switch (opcion) {
-                case 1 -> crearCliente();
-                case 2 -> editarCliente();
-                case 3 -> crearRegistrador();
-                case 4 -> editarRegistrador();
-                case 5 -> continuar = false;
-                default -> vista.mostrarMensaje("Opción inválida.");
-            }
-        }
-        vista.mostrarMensaje("Aplicación terminada.");
+    private boolean esBisiesto(int anio) {
+        return (anio % 4 == 0 && anio % 100 != 0) || (anio % 400 == 0);
     }
 }
+
