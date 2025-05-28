@@ -1,8 +1,6 @@
 package view;
 
 import java.util.Scanner;
-import model.Cliente;
-import model.Registrador;
 
 public class Vista {
     private Scanner scanner;
@@ -17,28 +15,25 @@ public class Vista {
         System.out.println("2. Editar cliente");
         System.out.println("3. Crear registrador");
         System.out.println("4. Editar registrador");
-        System.out.println("5. Cargar consumos para todos los clientes");
-        System.out.println("6. Cargar consumos para un cliente");
-        System.out.println("7. Cambiar consumo de una hora específica");
-        System.out.println("8. Salir");
+        System.out.println("5. Cargar consumos automáticos para todos los clientes");
+        System.out.println("6. Cargar consumos automáticos para un cliente");
+        System.out.println("7. Cambiar consumo de una hora de un mes de un registrador");
+        System.out.println("8. Mostrar consumo mínimo de un cliente");
+        System.out.println("9. Mostrar consumo máximo de un cliente");
+        System.out.println("10. Mostrar consumo por franjas de un cliente");
+        System.out.println("11. Mostrar consumo por días de un cliente");
+        System.out.println("12. Calcular factura de un cliente");
+        System.out.println("0. Salir");
+        System.out.print("Seleccione opción: ");
     }
 
-    public int pedirOpcion() {
-        System.out.print("Ingrese opción: ");
-        return Integer.parseInt(scanner.nextLine());
+    public int leerEntero() {
+        int opcion = scanner.nextInt();
+        scanner.nextLine(); // limpiar buffer
+        return opcion;
     }
 
-    public int pedirAnio() {
-        System.out.print("Ingrese el año (ejemplo: 2025): ");
-        return Integer.parseInt(scanner.nextLine());
-    }
-
-    public int pedirMes() {
-        System.out.print("Ingrese el mes (1-12): ");
-        return Integer.parseInt(scanner.nextLine());
-    }
-
-    public String pedirDato(String mensaje) {
+    public String leerTexto(String mensaje) {
         System.out.print(mensaje);
         return scanner.nextLine();
     }
@@ -47,40 +42,20 @@ public class Vista {
         System.out.println(mensaje);
     }
 
-    public Cliente crearCliente() {
-        System.out.println("Crear nuevo cliente:");
-        String numId = pedirDato("Número único de identificación: ");
-        String tipoId = pedirDato("Tipo de identificación: ");
-        String correo = pedirDato("Correo electrónico: ");
-        String direccion = pedirDato("Dirección física: ");
-        return new Cliente(numId, tipoId, correo, direccion);
-    }
-
-    public void editarCliente(Cliente cliente) {
-        System.out.println("Editar cliente (no se puede cambiar número único de identificación):");
-        String tipoId = pedirDato("Nuevo tipo de identificación (" + cliente.getTipoIdentificacion() + "): ");
-        String correo = pedirDato("Nuevo correo electrónico (" + cliente.getCorreo() + "): ");
-        String direccion = pedirDato("Nueva dirección física (" + cliente.getDireccion() + "): ");
-
-        if (!tipoId.isBlank()) cliente.setTipoIdentificacion(tipoId);
-        if (!correo.isBlank()) cliente.setCorreo(correo);
-        if (!direccion.isBlank()) cliente.setDireccion(direccion);
-    }
-
-    public Registrador crearRegistrador() {
-        System.out.println("Crear nuevo registrador:");
-        String numId = pedirDato("Número de identificación: ");
-        String direccion = pedirDato("Dirección: ");
-        String ciudad = pedirDato("Ciudad: ");
-        return new Registrador(numId, direccion, ciudad);
-    }
-
-    public void editarRegistrador(Registrador registrador) {
-        System.out.println("Editar registrador (no se puede cambiar número de identificación):");
-        String direccion = pedirDato("Nueva dirección (" + registrador.getDireccion() + "): ");
-        String ciudad = pedirDato("Nueva ciudad (" + registrador.getCiudad() + "): ");
-
-        if (!direccion.isBlank()) registrador.setDireccion(direccion);
-        if (!ciudad.isBlank()) registrador.setCiudad(ciudad);
+    public void mostrarMatrizConsumos(int[][] matriz) {
+        System.out.println("--- MATRIZ DE CONSUMO DE ENERGÍA (kW/h) ---");
+        System.out.print("Día\\Hora\t");
+        for (int h = 0; h < 24; h++) {
+            System.out.print(h + "\t");
+        }
+        System.out.println();
+        for (int d = 0; d < matriz.length; d++) {
+            System.out.print("Día " + (d + 1) + ":\t");
+            for (int h = 0; h < 24; h++) {
+                System.out.print(matriz[d][h] + "\t");
+            }
+            System.out.println();
+        }
     }
 }
+
