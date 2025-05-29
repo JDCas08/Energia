@@ -20,5 +20,8 @@ public class Registrador {
     public void setCiudad(String ciudad) { this.ciudad = ciudad; }
 
     public Consumo getConsumo() { return consumo; }
-}
 
+    public void setConsumo(Consumo consumo) {
+        this.consumo = consumo;
+    }
+}

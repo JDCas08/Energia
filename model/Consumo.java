@@ -99,6 +99,28 @@ public class Consumo {
         }
         return total;
     }
+
+    public void generarConsumoAleatorio(int mes, int anio) {
+        // Validar el mes
+        if (mes < 1 || mes > 12) {
+            throw new IllegalArgumentException("Mes inválido: " + mes);
+        }
+
+        // Determinar días del mes
+        int[] diasPorMes = {31, esBisiesto(anio) ? 29 : 28, 31, 30, 31, 30,
+                            31, 31, 30, 31, 30, 31};
+        this.dias = diasPorMes[mes - 1];
+
+        // Crear nueva matriz con tamaño adecuado
+        this.consumos = new int[dias][24];
+
+        // Llenar con consumos automáticos
+        cargarConsumosAutomaticos();
+    }
+
+    private boolean esBisiesto(int anio) {
+        return (anio % 4 == 0 && anio % 100 != 0) || (anio % 400 == 0);
+    }
 }
 
 

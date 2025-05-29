@@ -42,4 +42,9 @@ public class Cliente {
     public ArrayList<Registrador> getRegistradores() {
         return registradores;
     }
+
+    public void setCorreo(String correo) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setCorreo'");
+    }
 }

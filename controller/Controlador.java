@@ -2,6 +2,8 @@ package controller;
 
 import java.util.ArrayList;
 import model.Cliente;
+import model.Consumo;
+import model.Factura;
 import model.Registrador;   
 import view.Vista;
 
@@ -18,209 +20,224 @@ public class Controlador {
         int opcion;
         do {
             vista.mostrarMenu();
-            opcion = vista.leerEntero();
+            opcion = vista.leerOpcion();
             switch (opcion) {
                 case 1: crearCliente(); break;
                 case 2: editarCliente(); break;
                 case 3: crearRegistrador(); break;
                 case 4: editarRegistrador(); break;
-                case 5: cargarConsumosTodosClientes(); break;
+                case 5: cargarConsumosTodos(); break;
                 case 6: cargarConsumosCliente(); break;
                 case 7: cambiarConsumoHora(); break;
-                case 8: mostrarConsumoMinimo(); break;
-                case 9: mostrarConsumoMaximo(); break;
-                case 10: mostrarConsumoPorFranjas(); break;
-                case 11: mostrarConsumoPorDias(); break;
-                case 12: calcularFacturaCliente(); break;
+                case 8: mostrarMatrizConsumo(); break;
+                case 9: mostrarConsumoMinimo(); break;
+                case 10: mostrarConsumoMaximo(); break;
+                case 11: mostrarConsumoPorFranjas(); break;
+                case 12: mostrarConsumoPorDias(); break;
+                case 13: calcularFacturaCliente(); break;
+                case 14: generarFacturaPDF(); break;
+                case 15: eliminarCliente(); break;
                 case 0: vista.mostrarMensaje("Saliendo..."); break;
-                default: vista.mostrarMensaje("Opción inválida");
+                default: vista.mostrarMensaje("Opción inválida.");
             }
         } while (opcion != 0);
     }
 
     private void crearCliente() {
-        String id = vista.leerTexto("Número de identificación: ");
-        String tipoId = vista.leerTexto("Tipo de identificación: ");
-        String correo = vista.leerTexto("Correo electrónico: ");
-        String direccion = vista.leerTexto("Dirección física: ");
-        Cliente c = new Cliente(id, tipoId, correo, direccion);
-        clientes.add(c);
-        vista.mostrarMensaje("Cliente creado.");
-    }
-
-    private Cliente buscarClientePorId(String id) {
-        for (Cliente c : clientes) {
-            if (c.getNumeroIdentificacion().equals(id)) return c;
-        }
-        return null;
+        String id = vista.leerTexto("Número de identificación:");
+        String tipo = vista.leerTexto("Tipo de identificación:");
+        String correo = vista.leerTexto("Correo electrónico:");
+        String direccion = vista.leerTexto("Dirección física:");
+        clientes.add(new Cliente(id, tipo, correo, direccion));
+        vista.mostrarMensaje("Cliente creado correctamente.");
     }
 
     private void editarCliente() {
-        String id = vista.leerTexto("Ingrese número de identificación del cliente a editar: ");
-        Cliente c = buscarClientePorId(id);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
+        Cliente cliente = buscarCliente();
+        if (cliente != null) {
+            String tipo = vista.leerTexto("Nuevo tipo de identificación:");
+            String correo = vista.leerTexto("Nuevo correo electrónico:");
+            String direccion = vista.leerTexto("Nueva dirección física:");
+            cliente.setTipoIdentificacion(tipo);
+            cliente.setCorreo(correo);
+            cliente.setDireccionFisica(direccion);
+            vista.mostrarMensaje("Cliente actualizado.");
         }
-        c.setTipoIdentificacion(vista.leerTexto("Nuevo tipo de identificación: "));
-        c.setCorreoElectronico(vista.leerTexto("Nuevo correo electrónico: "));
-        c.setDireccionFisica(vista.leerTexto("Nueva dirección física: "));
-        vista.mostrarMensaje("Cliente actualizado.");
     }
 
     private void crearRegistrador() {
-        String clienteId = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(clienteId);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
+        Cliente cliente = buscarCliente();
+        if (cliente != null) {
+            String id = vista.leerTexto("ID del registrador:");
+            String direccion = vista.leerTexto("Dirección:");
+            String ciudad = vista.leerTexto("Ciudad:");
+            cliente.agregarRegistrador(new Registrador(id, direccion, ciudad, 0));
+            vista.mostrarMensaje("Registrador creado.");
         }
-        String regId = vista.leerTexto("Número de identificacion del registrador: ");
-        String dir = vista.leerTexto("Dirección del registrador: ");
-        String ciudad = vista.leerTexto("Ciudad del registrador: ");
-        int dias = Integer.parseInt(vista.leerTexto("Ingrese número de días del mes para crear consumo: "));
-
-        Registrador r = new Registrador(regId, dir, ciudad, dias);
-        c.agregarRegistrador(r);
-        vista.mostrarMensaje("Registrador agregado al cliente.");
     }
 
     private void editarRegistrador() {
-        String clienteId = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(clienteId);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
-        }
-        String regId = vista.leerTexto("Ingrese número de identificación del registrador a editar: ");
-        Registrador r = c.buscarRegistradorPorId(regId);
-        if (r == null) {
-            vista.mostrarMensaje("Registrador no encontrado.");
-            return;
-        }
-        r.setDireccion(vista.leerTexto("Nueva dirección del registrador: "));
-        r.setCiudad(vista.leerTexto("Nueva ciudad del registrador: "));
-        vista.mostrarMensaje("Registrador actualizado.");
-    }
-
-    private void cargarConsumosTodosClientes() {
-        for (Cliente c : clientes) {
-            for (Registrador r : c.getRegistradores()) {
-                r.getConsumo().cargarConsumosAutomaticos();
+        Cliente cliente = buscarCliente();
+        if (cliente != null) {
+            Registrador reg = buscarRegistrador(cliente);
+            if (reg != null) {
+                String direccion = vista.leerTexto("Nueva dirección:");
+                String ciudad = vista.leerTexto("Nueva ciudad:");
+                reg.setDireccion(direccion);
+                reg.setCiudad(ciudad);
+                vista.mostrarMensaje("Registrador actualizado.");
             }
         }
-        vista.mostrarMensaje("Consumos cargados automáticamente para todos los clientes.");
+    }
+
+    private void cargarConsumosTodos() {
+        int anio = vista.leerEntero("Ingrese el año:");
+        int mes = vista.leerEntero("Ingrese el mes:");
+        for (Cliente cliente : clientes) {
+            for (Registrador reg : cliente.getRegistradores()) {
+                Consumo consumo = new Consumo(obtenerDiasDelMes(mes, anio));
+                consumo.generarConsumoAleatorio(mes, anio);
+                reg.setConsumo(consumo);
+            }
+        }
+        vista.mostrarMensaje("Consumos generados para todos los clientes.");
     }
 
     private void cargarConsumosCliente() {
-        String id = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(id);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
+        Cliente cliente = buscarCliente();
+        if (cliente != null) {
+            Registrador reg = buscarRegistrador(cliente);
+            if (reg != null) {
+                int anio = vista.leerEntero("Ingrese el año:");
+                int mes = vista.leerEntero("Ingrese el mes:");
+                Consumo consumo = new Consumo(obtenerDiasDelMes(mes, anio));
+                consumo.generarConsumoAleatorio(mes, anio);
+                reg.setConsumo(consumo);
+                vista.mostrarMensaje("Consumo generado para el cliente.");
+            }
         }
-        for (Registrador r : c.getRegistradores()) {
-            r.getConsumo().cargarConsumosAutomaticos();
-        }
-        vista.mostrarMensaje("Consumos cargados automáticamente para el cliente.");
+    }
+
+    private int obtenerDiasDelMes(int mes, int anio) {
+        return switch (mes) {
+            case 1, 3, 5, 7, 8, 10, 12 -> 31;
+            case 4, 6, 9, 11 -> 30;
+            case 2 -> (anio % 4 == 0 && (anio % 100 != 0 || anio % 400 == 0)) ? 29 : 28;
+            default -> throw new IllegalArgumentException("Mes inválido: " + mes);
+        };
     }
 
     private void cambiarConsumoHora() {
-        String clienteId = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(clienteId);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
+        Cliente cliente = buscarCliente();
+        if (cliente != null) {
+            Registrador reg = buscarRegistrador(cliente);
+            if (reg != null) {
+                int dia = vista.leerEntero("Día:") - 1;
+                int hora = vista.leerEntero("Hora:");
+                int nuevo = vista.leerEntero("Nuevo consumo (kW/h):");
+                reg.getConsumo().setConsumo(dia, hora, nuevo);
+                vista.mostrarMensaje("Consumo actualizado.");
+            }
         }
-        String regId = vista.leerTexto("Ingrese número de identificación del registrador: ");
-        Registrador r = c.buscarRegistradorPorId(regId);
-        if (r == null) {
-            vista.mostrarMensaje("Registrador no encontrado.");
-            return;
-        }
-        int dia = Integer.parseInt(vista.leerTexto("Ingrese día (1-" + r.getConsumo().getDias() + "): ")) - 1;
-        int hora = Integer.parseInt(vista.leerTexto("Ingrese hora (0-23): "));
-        int nuevoConsumo = Integer.parseInt(vista.leerTexto("Ingrese nuevo consumo (kWh): "));
+    }
 
-        if (dia < 0 || dia >= r.getConsumo().getDias() || hora < 0 || hora > 23) {
-            vista.mostrarMensaje("Día u hora inválidos.");
-            return;
-        }
-
-        r.getConsumo().setConsumo(dia, hora, nuevoConsumo);
-        vista.mostrarMensaje("Consumo actualizado.");
+    private void mostrarMatrizConsumo() {
+        Cliente cliente = buscarCliente();
+        if (cliente == null) return;
+        Registrador reg = buscarRegistrador(cliente);
+        if (reg == null) return;
+        vista.mostrarMatrizConsumo(reg.getConsumo().getConsumos());
     }
 
     private void mostrarConsumoMinimo() {
-        String clienteId = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(clienteId);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
-        }
-        for (Registrador r : c.getRegistradores()) {
-            int min = r.getConsumo().consumoMinimo();
-            vista.mostrarMensaje("Registrador " + r.getNumeroIdentificacion() + " consumo mínimo: " + min);
-            vista.mostrarMatrizConsumos(r.getConsumo().getConsumos());
-        }
+        Cliente cliente = buscarCliente();
+        if (cliente == null) return;
+        Registrador reg = buscarRegistrador(cliente);
+        if (reg == null) return;
+        int minimo = reg.getConsumo().consumoMinimo();
+        vista.mostrarMensaje("Consumo mínimo del mes: " + minimo + " kW/h");
     }
 
     private void mostrarConsumoMaximo() {
-        String clienteId = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(clienteId);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
-        }
-        for (Registrador r : c.getRegistradores()) {
-            int max = r.getConsumo().consumoMaximo();
-            vista.mostrarMensaje("Registrador " + r.getNumeroIdentificacion() + " consumo máximo: " + max);
-            vista.mostrarMatrizConsumos(r.getConsumo().getConsumos());
-        }
+        Cliente cliente = buscarCliente();
+        if (cliente == null) return;
+        Registrador reg = buscarRegistrador(cliente);
+        if (reg == null) return;
+        int maximo = reg.getConsumo().consumoMaximo();
+        vista.mostrarMensaje("Consumo máximo del mes: " + maximo + " kW/h");
     }
 
     private void mostrarConsumoPorFranjas() {
-        String clienteId = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(clienteId);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
-        }
-        for (Registrador r : c.getRegistradores()) {
-            int[] franjas = r.getConsumo().consumoPorFranjas();
-            vista.mostrarMensaje("Registrador " + r.getNumeroIdentificacion() + " consumo por franjas:");
-            vista.mostrarMensaje("Franja 0-6h: " + franjas[0]);
-            vista.mostrarMensaje("Franja 7-17h: " + franjas[1]);
-            vista.mostrarMensaje("Franja 18-23h: " + franjas[2]);
+        Cliente cliente = buscarCliente();
+        if (cliente == null) return;
+        Registrador reg = buscarRegistrador(cliente);
+        if (reg == null) return;
+        int[] franjas = reg.getConsumo().consumoPorFranjas();
+        for (int i = 0; i < franjas.length; i++) {
+            vista.mostrarMensaje("Franja " + (i + 1) + ": " + franjas[i] + " kW/h");
         }
     }
 
     private void mostrarConsumoPorDias() {
-        String clienteId = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(clienteId);
-        if (c == null) {
-            vista.mostrarMensaje("Cliente no encontrado.");
-            return;
-        }
-        for (Registrador r : c.getRegistradores()) {
-            int[] porDias = r.getConsumo().consumoPorDias();
-            vista.mostrarMensaje("Registrador " + r.getNumeroIdentificacion() + " consumo por días:");
-            for (int i = 0; i < porDias.length; i++) {
-                vista.mostrarMensaje("Día " + (i + 1) + ": " + porDias[i]);
-            }
+        Cliente cliente = buscarCliente();
+        if (cliente == null) return;
+        Registrador reg = buscarRegistrador(cliente);
+        if (reg == null) return;
+        int[] dias = reg.getConsumo().consumoPorDias();
+        for (int i = 0; i < dias.length; i++) {
+            vista.mostrarMensaje("Día " + (i + 1) + ": " + dias[i] + " kW/h");
         }
     }
 
     private void calcularFacturaCliente() {
-        String clienteId = vista.leerTexto("Ingrese número de identificación del cliente: ");
-        Cliente c = buscarClientePorId(clienteId);
-        if (c == null) {
+        Cliente cliente = buscarCliente();
+        if (cliente == null) return;
+        Registrador reg = buscarRegistrador(cliente);
+        if (reg == null) return;
+        int total = reg.getConsumo().calcularFactura();
+        vista.mostrarMensaje("Valor total de la factura: $" + total);
+    }
+     private void generarFacturaPDF() {
+    Cliente cliente = buscarCliente();
+    if (cliente == null) return;
+    Registrador reg = buscarRegistrador(cliente);
+    if (reg == null) return; int mes = vista.leerEntero("Ingrese el mes (1-12): ");
+    String archivo = "factura_" + cliente.getNumeroIdentificacion() + "_mes" + mes + ".pdf";
+    Factura factura = new Factura();
+    factura.generarFacturaPDF(cliente, reg, mes, archivo);
+    }
+   
+
+    private void eliminarCliente() {
+        String id = vista.leerTexto("Ingrese número de identificación del cliente a eliminar: ");
+        Cliente clienteAEliminar = null;
+        for (Cliente c : clientes) {
+            if (c.getNumeroIdentificacion().equals(id)) {
+                clienteAEliminar = c;
+                break;
+            }
+        }
+        if (clienteAEliminar != null) {
+            clientes.remove(clienteAEliminar);
+            vista.mostrarMensaje("Cliente eliminado correctamente.");
+        } else {
             vista.mostrarMensaje("Cliente no encontrado.");
-            return;
         }
-        for (Registrador r : c.getRegistradores()) {
-            int factura = r.getConsumo().calcularFactura();
-            vista.mostrarMensaje("Registrador " + r.getNumeroIdentificacion() + " factura total: $" + factura);
+    }
+
+    private Cliente buscarCliente() {
+        String id = vista.leerTexto("Ingrese número de identificación del cliente: ");
+        for (Cliente c : clientes) {
+            if (c.getNumeroIdentificacion().equals(id)) return c;
         }
+        vista.mostrarMensaje("Cliente no encontrado.");
+        return null;
+    }
+
+    private Registrador buscarRegistrador(Cliente cliente) {
+        String id = vista.leerTexto("Ingrese número de identificación del registrador: ");
+        Registrador reg = cliente.buscarRegistradorPorId(id);
+        if (reg == null) vista.mostrarMensaje("Registrador no encontrado.");
+        return reg;
     }
 }
