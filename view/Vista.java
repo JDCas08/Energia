@@ -2,13 +2,24 @@ package view;
 
 import java.util.Scanner;
 
+/**
+ * Clase Vista que gestiona la interacción con el usuario mediante consola.
+ * Proporciona métodos para mostrar menús, leer entradas y mostrar resultados.
+ */
 public class Vista {
+    /** Objeto Scanner para leer entradas desde la consola. */
     private Scanner scanner;
 
+    /**
+     * Constructor que inicializa el Scanner para entrada por consola.
+     */
     public Vista() {
         scanner = new Scanner(System.in);
     }
 
+    /**
+     * Muestra el menú principal con las opciones disponibles para el usuario.
+     */
     public void mostrarMenu() {
         System.out.println("\n--- MENÚ PRINCIPAL ---");
         System.out.println("1. Crear cliente");
@@ -29,25 +40,53 @@ public class Vista {
         System.out.println("0. Salir");
     }
 
+    /**
+     * Lee la opción seleccionada por el usuario.
+     *
+     * @return Opción seleccionada como número entero.
+     */
     public int leerOpcion() {
         System.out.print("Seleccione una opción: ");
         return Integer.parseInt(scanner.nextLine());
     }
 
+    /**
+     * Lee una entrada de texto del usuario.
+     *
+     * @param mensaje Mensaje que se muestra antes de la entrada.
+     * @return Cadena de texto ingresada por el usuario.
+     */
     public String leerTexto(String mensaje) {
         System.out.print(mensaje);
         return scanner.nextLine();
     }
 
+    /**
+     * Lee una entrada numérica entera del usuario.
+     *
+     * @param mensaje Mensaje que se muestra antes de la entrada.
+     * @return Número entero ingresado por el usuario.
+     */
     public int leerEntero(String mensaje) {
         System.out.print(mensaje);
         return Integer.parseInt(scanner.nextLine());
     }
 
+    /**
+     * Muestra un mensaje al usuario en la consola.
+     *
+     * @param mensaje Texto del mensaje a mostrar.
+     */
     public void mostrarMensaje(String mensaje) {
         System.out.println(mensaje);
     }
 
+    /**
+     * Muestra una matriz de consumo energético con formato de tabla.
+     *
+     * @param matriz Matriz de consumos en kW/h, donde cada fila representa un día
+     *               y cada columna una hora.
+     */
     public void mostrarMatrizConsumo(int[][] matriz) {
         System.out.println("\n--- MATRIZ DE CONSUMO DE ENERGÍA (kW/h) ---");
         System.out.print("Día\\Hora\t");
@@ -65,5 +104,3 @@ public class Vista {
         }
     }
 }
-
-

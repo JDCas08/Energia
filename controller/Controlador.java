@@ -7,15 +7,26 @@ import model.Factura;
 import model.Registrador;   
 import view.Vista;
 
+/**
+ * Clase Controlador que maneja la lógica principal de la aplicación de gestión de clientes de energía.
+ * Coordina la interacción entre la vista y los modelos (Cliente, Registrador, Consumo, Factura).
+ */
 public class Controlador {
     private ArrayList<Cliente> clientes;
     private Vista vista;
 
+    /**
+     * Constructor de la clase Controlador.
+     * Inicializa la lista de clientes y la vista.
+     */
     public Controlador() {
         clientes = new ArrayList<>();
         vista = new Vista();
     }
 
+    /**
+     * Inicia el menú principal de la aplicación y gestiona la selección de opciones del usuario.
+     */
     public void iniciar() {
         int opcion;
         do {
@@ -43,6 +54,7 @@ public class Controlador {
         } while (opcion != 0);
     }
 
+    /** Crea un nuevo cliente con los datos ingresados desde la vista. */
     private void crearCliente() {
         String id = vista.leerTexto("Número de identificación:");
         String tipo = vista.leerTexto("Tipo de identificación:");
@@ -52,6 +64,7 @@ public class Controlador {
         vista.mostrarMensaje("Cliente creado correctamente.");
     }
 
+    /** Edita los datos de un cliente existente. */
     private void editarCliente() {
         Cliente cliente = buscarCliente();
         if (cliente != null) {
@@ -65,6 +78,7 @@ public class Controlador {
         }
     }
 
+    /** Crea un nuevo registrador para un cliente existente. */
     private void crearRegistrador() {
         Cliente cliente = buscarCliente();
         if (cliente != null) {
@@ -76,6 +90,7 @@ public class Controlador {
         }
     }
 
+    /** Edita los datos de un registrador existente. */
     private void editarRegistrador() {
         Cliente cliente = buscarCliente();
         if (cliente != null) {
@@ -90,6 +105,7 @@ public class Controlador {
         }
     }
 
+    /** Genera consumos aleatorios para todos los clientes y registradores en un mes específico. */
     private void cargarConsumosTodos() {
         int anio = vista.leerEntero("Ingrese el año:");
         int mes = vista.leerEntero("Ingrese el mes:");
@@ -103,6 +119,7 @@ public class Controlador {
         vista.mostrarMensaje("Consumos generados para todos los clientes.");
     }
 
+    /** Genera consumo para un cliente y registrador específicos. */
     private void cargarConsumosCliente() {
         Cliente cliente = buscarCliente();
         if (cliente != null) {
@@ -118,6 +135,12 @@ public class Controlador {
         }
     }
 
+    /**
+     * Calcula la cantidad de días de un mes, considerando años bisiestos.
+     * @param mes Mes del año (1-12)
+     * @param anio Año
+     * @return Número de días del mes
+     */
     private int obtenerDiasDelMes(int mes, int anio) {
         return switch (mes) {
             case 1, 3, 5, 7, 8, 10, 12 -> 31;
@@ -127,6 +150,7 @@ public class Controlador {
         };
     }
 
+    /** Permite modificar el consumo de una hora específica para un cliente. */
     private void cambiarConsumoHora() {
         Cliente cliente = buscarCliente();
         if (cliente != null) {
@@ -141,6 +165,7 @@ public class Controlador {
         }
     }
 
+    /** Muestra la matriz de consumo del registrador de un cliente. */
     private void mostrarMatrizConsumo() {
         Cliente cliente = buscarCliente();
         if (cliente == null) return;
@@ -149,6 +174,7 @@ public class Controlador {
         vista.mostrarMatrizConsumo(reg.getConsumo().getConsumos());
     }
 
+    /** Muestra el consumo mínimo del mes para un cliente. */
     private void mostrarConsumoMinimo() {
         Cliente cliente = buscarCliente();
         if (cliente == null) return;
@@ -158,6 +184,7 @@ public class Controlador {
         vista.mostrarMensaje("Consumo mínimo del mes: " + minimo + " kW/h");
     }
 
+    /** Muestra el consumo máximo del mes para un cliente. */
     private void mostrarConsumoMaximo() {
         Cliente cliente = buscarCliente();
         if (cliente == null) return;
@@ -167,6 +194,7 @@ public class Controlador {
         vista.mostrarMensaje("Consumo máximo del mes: " + maximo + " kW/h");
     }
 
+    /** Muestra el consumo de energía dividido por franjas horarias. */
     private void mostrarConsumoPorFranjas() {
         Cliente cliente = buscarCliente();
         if (cliente == null) return;
@@ -178,6 +206,7 @@ public class Controlador {
         }
     }
 
+    /** Muestra el consumo diario del mes para un cliente. */
     private void mostrarConsumoPorDias() {
         Cliente cliente = buscarCliente();
         if (cliente == null) return;
@@ -189,6 +218,7 @@ public class Controlador {
         }
     }
 
+    /** Calcula el valor total de la factura de energía para un cliente. */
     private void calcularFacturaCliente() {
         Cliente cliente = buscarCliente();
         if (cliente == null) return;
@@ -197,17 +227,20 @@ public class Controlador {
         int total = reg.getConsumo().calcularFactura();
         vista.mostrarMensaje("Valor total de la factura: $" + total);
     }
-     private void generarFacturaPDF() {
-    Cliente cliente = buscarCliente();
-    if (cliente == null) return;
-    Registrador reg = buscarRegistrador(cliente);
-    if (reg == null) return; int mes = vista.leerEntero("Ingrese el mes (1-12): ");
-    String archivo = "factura_" + cliente.getNumeroIdentificacion() + "_mes" + mes + ".pdf";
-    Factura factura = new Factura();
-    factura.generarFacturaPDF(cliente, reg, mes, archivo);
-    }
-   
 
+    /** Genera una factura en PDF para un cliente. */
+    private void generarFacturaPDF() {
+        Cliente cliente = buscarCliente();
+        if (cliente == null) return;
+        Registrador reg = buscarRegistrador(cliente);
+        if (reg == null) return;
+        int mes = vista.leerEntero("Ingrese el mes (1-12): ");
+        String archivo = "factura_" + cliente.getNumeroIdentificacion() + "_mes" + mes + ".pdf";
+        Factura factura = new Factura();
+        factura.generarFacturaPDF(cliente, reg, mes, archivo);
+    }
+
+    /** Elimina un cliente del sistema a partir de su número de identificación. */
     private void eliminarCliente() {
         String id = vista.leerTexto("Ingrese número de identificación del cliente a eliminar: ");
         Cliente clienteAEliminar = null;
@@ -225,6 +258,10 @@ public class Controlador {
         }
     }
 
+    /**
+     * Busca un cliente a partir de su número de identificación.
+     * @return El cliente encontrado o null si no existe.
+     */
     private Cliente buscarCliente() {
         String id = vista.leerTexto("Ingrese número de identificación del cliente: ");
         for (Cliente c : clientes) {
@@ -234,6 +271,11 @@ public class Controlador {
         return null;
     }
 
+    /**
+     * Busca un registrador por ID para un cliente dado.
+     * @param cliente Cliente al que pertenece el registrador.
+     * @return El registrador encontrado o null si no existe.
+     */
     private Registrador buscarRegistrador(Cliente cliente) {
         String id = vista.leerTexto("Ingrese número de identificación del registrador: ");
         Registrador reg = cliente.buscarRegistradorPorId(id);
